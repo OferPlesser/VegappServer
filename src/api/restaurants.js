@@ -1,4 +1,4 @@
-import Recipe from '../models/recipes';
+import Restaurants from '../models/restaurants';
 import express from 'express'
 
 export default ({config, db}) => {
@@ -7,22 +7,22 @@ export default ({config, db}) => {
         res.json(req.query);
     });
     router.post('/add', function (req, res) {
-        var newRecipe = new Recipe(req.body);
-        newRecipe.save(function (err, savedRecipe) {
+        var newRestaurant = new Restaurants(req.body);
+        newRestaurant.save(function (err, newRestaurant) {
             if (err) {
                 next(err);
                 return;
             }
-            res.json(savedRecipe);
+            res.json(newRestaurant);
         });
     });
     router.get('/get/:itemId', function (req, res) {
-        Recipe.find({_id: req.params.itemId}, function (err, recipe) {
+        Restaurants.find({_id: req.params.itemId}, function (err, newRestaurant) {
             if (err) {
                 next(err);
                 return;
             }
-            res.json(recipe);
+            res.json(newRestaurant);
         });
     });
     return router;
