@@ -19,6 +19,8 @@ app.use(bodyParser.json({
 	limit : config.bodyLimit
 }));
 
+
+
 // connect to db
 initializeDb( db => {
 
@@ -27,6 +29,21 @@ initializeDb( db => {
 
 	// api router
 	app.use('/api', api({ config, db }));
+	app.use(function logErrors(err, req, res, next) {
+		console.error(err.stack);
+		next(err);
+	});
+	app.use(function clientErrorHandler(err, req, res, next) {
+		if (req.xhr) {
+			res.status(500).send({ error: 'Something failed!' });
+		} else {
+			next(err);
+		}
+	});
+	app.use(function errorHandler(err, req, res, next) {
+		res.status(500);
+		res.render('error', { error: err });
+	});
 
 	app.server.listen(process.env.PORT || config.port);
 

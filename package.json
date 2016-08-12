@@ -8,7 +8,8 @@
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
     "start": "node dist",
     "prestart": "npm run -s build",
-    "test": "eslint src"
+    "test": "eslint src",
+    "initDb": "node dist/models/initScripts/initiateDb"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
@@ -32,7 +33,10 @@
     "compression": "^1.5.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
-    "resource-router-middleware": "^0.5.1"
+    "mongo": "^0.1.0",
+    "mongoose": "^4.5.8",
+    "resource-router-middleware": "^0.5.1",
+    "xlsx": "^0.8.0"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
