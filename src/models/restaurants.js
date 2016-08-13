@@ -1,10 +1,8 @@
-// our example model is just an Array
-
 import mongoose from 'mongoose'
 
 var restaurantSchema = mongoose.Schema({
     title: String,
-    location:{
+    location: {
         place: String,
         coordinates: String,
         address: String

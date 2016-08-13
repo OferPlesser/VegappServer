@@ -1,11 +1,11 @@
 import Recipe from '../models/recipes';
+import categoryModelMap from '../search/categoryModelMap';
+const modelToCategory = categoryModelMap.modelToCategory;
+import IndexDocumentAsTags from '../search/IndexDocumentAsTags'
 import express from 'express'
 
 export default ({config, db}) => {
     var router = express.Router();
-    router.get('/search', function (req, res) {
-        res.json(req.query);
-    });
     router.post('/add', function (req, res) {
         var newRecipe = new Recipe(req.body);
         newRecipe.save(function (err, savedRecipe) {
@@ -14,8 +14,10 @@ export default ({config, db}) => {
                 return;
             }
             res.json(savedRecipe);
+            IndexDocumentAsTags(savedRecipe, modelToCategory[Recipe]);
         });
     });
+
     router.get('/get/:itemId', function (req, res) {
         Recipe.find({_id: req.params.itemId}, function (err, recipe) {
             if (err) {
@@ -25,5 +27,6 @@ export default ({config, db}) => {
             res.json(recipe);
         });
     });
+
     return router;
 }

@@ -5,6 +5,11 @@
 import XLSX from 'xlsx';
 import xlsx from 'node-xlsx';
 import Restaurant from '../restaurants';
+import categoryModelMap from '../../search/categoryModelMap';
+const modelToCategory = categoryModelMap.modelToCategory;
+
+import IndexDocumentAsTags from '../../search/IndexDocumentAsTags'
+
 
 const businessFile = __dirname + '/businessList.xlsx';
 const restaurantWorksheetName = 'מסעדות לאחר פרסום';
@@ -73,7 +78,11 @@ function addExcelRestaurant(restaurant) {
         address: restaurantObj.address
     };
     var dbRestaurant = new Restaurant(restaurantObj);
-    dbRestaurant.save();
+    dbRestaurant.save(function(err, savedRestaurant){
+        if(savedRestaurant){
+            IndexDocumentAsTags(savedRestaurant, modelToCategory[Restaurant]);
+        }
+    });
 }
 
 function main() {
