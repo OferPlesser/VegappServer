@@ -4,6 +4,7 @@
 
 import Recipe from '../models/recipes';
 import Restaurant from '../models/restaurants';
+import Ingredient from '../models/ingredients';
 
 function swap(json) {
     var ret = {};
@@ -13,12 +14,17 @@ function swap(json) {
     return ret;
 }
 
-var categoryToModel = {
+const categoryToModel = {
     'recipe': Recipe,
-    'restaurant': Restaurant
+    'restaurant': Restaurant,
+    'ingredient': Ingredient
 };
 
-var modelToCategory = swap(categoryToModel);
+const modelToCategory = {
+    Recipe: 'recipe',
+    Restaurant:'restaurant',
+    Ingredient:'ingredient'
+};
 
 export default {
     categoryToModel, modelToCategory

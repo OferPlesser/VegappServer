@@ -34,12 +34,8 @@ function indexOfJsonOfCategory(array, categoryName) {
 
 function handleNewDocumentTag(document, category, tagName) {
     return new Promise((resolve, reject)=> {
-        console.log(tagName);
         SearchTag.findOne({word: tagName}, function (err, tag) {
                 if (tag) {
-                    console.log("saving same tag because tag is:");
-                    console.log(tag);
-                    console.log(tagName);
                     var categoryIndex = indexOfJsonOfCategory(tag.items, category);
                     if (categoryIndex > 0) {
                         tag.items[categoryIndex].ids.push(document._id);
@@ -49,9 +45,6 @@ function handleNewDocumentTag(document, category, tagName) {
                     tag.save(resolve, reject);
 
                 } else {
-                    console.log("creating a new tag because tag is:");
-                    console.log(tag);
-                    console.log(tagName);
                     var newTag = new SearchTag({word: tagName, items: [{category: category, ids: [document._id]}]});
                     newTag.save(resolve, reject);
                 }
@@ -68,7 +61,7 @@ export default (document, category) => {
             try {
                 var tags = extractTags(document[key]);
                 if (!tags) {
-                    return;
+                    reject();
                 }
                 var addTagPromiseArray = [];
                 tags.forEach((tag)=>{

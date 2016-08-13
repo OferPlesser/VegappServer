@@ -1,4 +1,4 @@
-import Recipe from '../models/recipes';
+import Ingredient from '../models/ingredients';
 import categoryModelMap from '../search/categoryModelMap';
 const modelToCategory = categoryModelMap.modelToCategory;
 import IndexDocumentAsTags from '../search/IndexDocumentAsTags'
@@ -8,7 +8,7 @@ import express from 'express'
 export default ({config, db}) => {
     var router = express.Router();
     router.post('/search', function (req, res, next) {
-        searchFunctions.searchByCategory(modelToCategory[Recipe],
+        searchFunctions.searchByCategory(modelToCategory[Ingredient],
             req.body.sessionId, req.body.tags, req.body.limit).then((searchResults)=> {
             if (!searchResults) {
                 res.send(500).end("no search result found");
@@ -23,24 +23,24 @@ export default ({config, db}) => {
     });
 
     router.post('/add', function (req, res) {
-        var newRecipe = new Recipe(req.body);
-        newRecipe.save(function (err, savedRecipe) {
+        var newIngredient = new Ingredient(req.body);
+        newIngredient.save(function (err, savedIngredient) {
             if (err) {
                 next(err);
                 return;
             }
-            res.json(savedRecipe);
-            IndexDocumentAsTags(savedRecipe, modelToCategory[Recipe]);
+            res.json(savedIngredient);
+            IndexDocumentAsTags(savedIngredient, modelToCategory[Ingredient]);
         });
     });
 
     router.get('/get/:itemId', function (req, res) {
-        Recipe.find({_id: req.params.itemId}, function (err, recipe) {
+        Ingredient.find({_id: req.params.itemId}, function (err, ingredient) {
             if (err) {
                 next(err);
                 return;
             }
-            res.json(recipe);
+            res.json(ingredient);
         });
     });
 

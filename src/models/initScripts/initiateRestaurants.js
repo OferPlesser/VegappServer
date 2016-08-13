@@ -96,8 +96,9 @@ function addExcelRestaurant(restaurant) {
         var dbRestaurant = new Restaurant(restaurantObj);
         dbRestaurant.save(function (err, savedRestaurant) {
             if (savedRestaurant) {
-                IndexDocumentAsTags(savedRestaurant, modelToCategory[Restaurant]);
-                resolve();
+                IndexDocumentAsTags(savedRestaurant, 'restaurant'
+                    /**this is a workaround to a strange bug, there should be here modelToCategory[Restaurant]*/
+                    ).then(resolve, reject);
             } else {
                 reject();
             }
@@ -107,23 +108,36 @@ function addExcelRestaurant(restaurant) {
 }
 
 function gatherWorksheet(excelFile, worksheetName) {
-    var restaurantsWorksheet = loadWorksheetFromWorkbook(excelFile, worksheetName);
-    var restaurants = parseWorksheet(restaurantsWorksheet);
-    //restaurants.forEach(addExcelRestaurant);
-    var functionArray = [];
-    restaurants.forEach((restaurant)=> {
-        functionArray.push((done)=> {
-            addExcelRestaurant(restaurant).then(done, done);
+    return new Promise((resolve, reject)=> {
+        var restaurantsWorksheet = loadWorksheetFromWorkbook(excelFile, worksheetName);
+        var restaurants = parseWorksheet(restaurantsWorksheet);
+        //restaurants.forEach(addExcelRestaurant);
+        var functionArray = [];
+        restaurants.forEach((restaurant)=> {
+            functionArray.push((done)=> {
+                addExcelRestaurant(restaurant).then(done, done);
+            });
         });
-    });
 
-    series(functionArray);
+        series(functionArray, ()=> {
+            console.log("workSheet " + worksheetName + " gathered");
+            resolve();
+        }, reject);
+    });
 
 }
-function main() {
+function main(done) {
+    console.log("starting restaurants Intiation.");
+    var gatherFunctionArray = [];
     worksheetsToGather.forEach((worksheetName)=> {
-        gatherWorksheet(businessFile, worksheetName);
+        gatherFunctionArray.push((insideDone)=> {
+            gatherWorksheet(businessFile, worksheetName).then(insideDone, insideDone);
+        });
     });
+    series(gatherFunctionArray, ()=> {
+        console.log("restaurants initiated");
+        done();
+    }, done);
 }
 
 export default main;
