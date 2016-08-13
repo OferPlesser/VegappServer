@@ -18,9 +18,9 @@ function searchByCategory_aux(category, tags) {
             var p = new Promise((resolve, reject) => {
                 SearchTags.findOne({word: tag}, function (err, dbTag) {
                     if (dbTag) {
-                        resolve(dbTag);
+                        return resolve(dbTag);
                     } else {
-                        reject();
+                       return reject();
                     }
                 })
             });
@@ -40,7 +40,7 @@ function searchByCategory_aux(category, tags) {
                             var p = new Promise((resolve, reject) => {
                                 categoryToModel[category].findOne({_id: id}, (err, item)=> {
                                     if (item) {
-                                        resolve(item);
+                                        return resolve(item);
                                     }
                                 });
                             });
@@ -50,10 +50,10 @@ function searchByCategory_aux(category, tags) {
                 }
             }
             Promise.all(gettingSearchResultsPromises).then((searchResults)=> {
-                resolving(searchResults);
+                return resolving(searchResults);
             });
         }, () => {
-            reject();
+            return reject();
         });
     });
 }
@@ -79,15 +79,15 @@ function searchByCategory(category, sessionId, tags, limit) {
                     for (var i = 0; i < resultToBeSend.length; i++) {
                         searchSession.sentResults.push(resultToBeSend[i]._id);
                     }
-                    resolve(resultToBeSend);
+                    return resolve(resultToBeSend);
                 }, ()=> {
-                    reject();
+                   return reject();
                 });
             })
         } else {
             searchByCategory_aux(category, tags).then((searchResults)=> {
                 if (!searchResults) {
-                    reject();
+                    return reject();
                 }
                 var resultToBeSend = searchResults.slice(0, limit);
                 var newSession = {sessionId: uuid.v1(), category: category, tags: tags, sentResults: []};
@@ -98,7 +98,7 @@ function searchByCategory(category, sessionId, tags, limit) {
                 newSessionObject.save();
                 resolve({sessionId: newSessionObject.sessionId, searchResults: resultToBeSend});
             }, ()=> {
-                reject();
+                return reject();
             });
         }
 

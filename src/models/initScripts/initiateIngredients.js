@@ -93,9 +93,10 @@ function gatherNonVeganIngredients(done) {
             var ingredient = new Ingredient({code: values[0], name: values[1], isVegan: 'N'});
             ingredient.save((err, savedIngredient) => {
                 if (savedIngredient) {
-                    IndexDocumentAsTags(savedIngredient, modelToCategory[Ingredient]).then(insideDone, insideDone);
+                    IndexDocumentAsTags(savedIngredient, 'ingredient'
+                    /**this is a workaround to a strange bug, there should be here modelToCategory[Ingredient]*/).then(insideDone, insideDone);
                 } else {
-                    insideDone();
+                    return insideDone();
                 }
             });
         })
@@ -113,9 +114,10 @@ function gatherPossiblyNonVeganIngredients(done) {
             var ingredient = new Ingredient({code: values[0], name: values[1], isVegan: 'Maybe'});
             ingredient.save((err, savedIngredient) => {
                 if (savedIngredient) {
-                    IndexDocumentAsTags(savedIngredient, modelToCategory[Ingredient]).then(insideDone, insideDone);
+                    IndexDocumentAsTags(savedIngredient, 'ingredient'
+                        /**this is a workaround to a strange bug, there should be here modelToCategory[Ingredient]*/).then(insideDone, insideDone);
                 } else {
-                    insideDone();
+                    return insideDone();
                 }
             });
         })
@@ -131,9 +133,10 @@ function gatherVeganIngredients(done) {
             var ingredient = new Ingredient({code: code, isVegan: 'Y'});
             ingredient.save((err, savedIngredient) => {
                 if (savedIngredient) {
-                    IndexDocumentAsTags(savedIngredient, modelToCategory[Ingredient]).then(insideDone, insideDone);
+                    IndexDocumentAsTags(savedIngredient, 'ingredient'
+                        /**this is a workaround to a strange bug, there should be here modelToCategory[Ingredient]*/).then(insideDone, insideDone);
                 } else {
-                    insideDone();
+                    return insideDone();
                 }
             });
         })
@@ -147,7 +150,7 @@ function main(done) {
     var gatherFunctionArray = [gatherNonVeganIngredients, gatherPossiblyNonVeganIngredients, gatherVeganIngredients];
     series(gatherFunctionArray, ()=> {
         console.log("ingredients initiated.");
-        done();
+       return done();
     }, done);
 }
 

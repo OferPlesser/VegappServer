@@ -8,7 +8,8 @@ import express from 'express'
 export default ({config, db}) => {
     var router = express.Router();
     router.post('/search', function (req, res, next) {
-        searchFunctions.searchByCategory(modelToCategory[Restaurant],
+        searchFunctions.searchByCategory('restaurant'
+            /**this is a workaround to a strange bug, there should be here modelToCategory[Restaurant]*/,
             req.body.sessionId, req.body.tags, req.body.limit).then((searchResults)=> {
             if (!searchResults) {
                 res.send(500).end("no search result found");
