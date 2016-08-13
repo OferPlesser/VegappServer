@@ -16,7 +16,8 @@ var restaurantSchema = mongoose.Schema({
     handicappedFriendly: String,
     parkingSpot: String,
     takeAway: String,
-    delivery: String
+    delivery: String,
+    classification: String
 });
 
 export default mongoose.model('Restaurant', restaurantSchema);

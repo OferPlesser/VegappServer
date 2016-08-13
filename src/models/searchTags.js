@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 var searchTagSchema = mongoose.Schema({
-    word: String,
+    word: {type:String, index: {unique: true, dropDups: true}, unique: true},
     items: Array
     /**
      items:

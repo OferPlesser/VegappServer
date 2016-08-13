@@ -6,6 +6,8 @@ import SearchTag from '../models/searchTags';
 import stopWords from './stopWords';
 import categoryModelMap from './categoryModelMap';
 const categoryToModel = categoryModelMap.categoryToModel;
+var series = require('async-series');
+
 
 function extractTags(value) {
     if (typeof value != 'string') {
@@ -31,36 +33,55 @@ function indexOfJsonOfCategory(array, categoryName) {
 }
 
 function handleNewDocumentTag(document, category, tagName) {
-    SearchTag.findOne({word: tagName}, function (err, tag) {
-            if (err || !tag) {
-                var newTag = new SearchTag({word: tagName, items: [{category: category, ids: [document._id]}]});
-                newTag.save();
-            } else {
-                var categoryIndex = indexOfJsonOfCategory(tag.items, category);
-                if (categoryIndex > 0) {
-                    tag.items[categoryIndex].ids.push(document._id);
+    return new Promise((resolve, reject)=> {
+        console.log(tagName);
+        SearchTag.findOne({word: tagName}, function (err, tag) {
+                if (tag) {
+                    console.log("saving same tag because tag is:");
+                    console.log(tag);
+                    console.log(tagName);
+                    var categoryIndex = indexOfJsonOfCategory(tag.items, category);
+                    if (categoryIndex > 0) {
+                        tag.items[categoryIndex].ids.push(document._id);
+                    } else {
+                        tag.items.push({category: category, ids: [document._id]});
+                    }
+                    tag.save(resolve, reject);
+
                 } else {
-                    tag.items.push({category: category, ids: [document._id]});
+                    console.log("creating a new tag because tag is:");
+                    console.log(tag);
+                    console.log(tagName);
+                    var newTag = new SearchTag({word: tagName, items: [{category: category, ids: [document._id]}]});
+                    newTag.save(resolve, reject);
                 }
-                tag.save();
+
             }
-        }
-    );
+        );
+    });
+
 }
 
 export default (document, category) => {
-    for (var key in categoryToModel[category].schema.tree) {
-        try {
-            var tags = extractTags(document[key]);
-            if (!tags) {
-                return;
+    return new Promise((resolve, reject)=> {
+        for (var key in categoryToModel[category].schema.tree) {
+            try {
+                var tags = extractTags(document[key]);
+                if (!tags) {
+                    return;
+                }
+                var addTagPromiseArray = [];
+                tags.forEach((tag)=>{
+                    addTagPromiseArray.push((done)=> {
+                        handleNewDocumentTag(document, category, tag).then(done, done);
+                    })
+                });
+                series(addTagPromiseArray, resolve, reject);
+            } catch (err) {
+
             }
-            tags.forEach((tag)=> {
-                handleNewDocumentTag(document, category, tag);
-            });
-        } catch (err) {
 
         }
 
-    }
+    });
 }
